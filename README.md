@@ -7,9 +7,10 @@ A small Discord bot with basic moderation commands.
 1. Install Node.js 18.17 or newer.
 2. Create a Discord application and bot in the [Discord Developer Portal](https://discord.com/developers/applications).
 3. Enable the **Message Content Intent** for the bot.
-4. Copy `.env.example` to `.env` and set the bot token, application ID, and test server ID.
-5. Invite the bot with the `bot` and `applications.commands` scopes and the permissions it needs.
-6. Install dependencies and start the bot:
+4. Enable the **Server Members Intent** for welcome messages.
+5. Copy `.env.example` to `.env` and set the bot token, application ID, and test server ID.
+6. Invite the bot with the `bot` and `applications.commands` scopes and the permissions it needs.
+7. Install dependencies and start the bot:
 
 ```sh
 npm install
@@ -22,5 +23,6 @@ npm start
 - `/ban member reason?`
 - `/timeout member minutes reason?`
 - `/clear amount`
+- `/setup` opens a dropdown embed for the Welcome-, Log- and Moderationskanal and the Moderator-, Supervisor- and Admin-Rolle.
 
 When someone says `Can I speak with Mariah`, the bot replies that Mariah is unavailable and offers help here.
