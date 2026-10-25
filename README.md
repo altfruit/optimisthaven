@@ -17,6 +17,10 @@ npm install
 npm start
 ```
 
+## Render
+
+The repository includes `render.yaml` for a Render background worker. Create a new Blueprint on Render, select this repository, and enter `DISCORD_TOKEN`, `CLIENT_ID`, and `GUILD_ID` when prompted. Render background workers use the Starter plan.
+
 ## Commands
 
 - `/kick member reason?`
@@ -24,5 +28,7 @@ npm start
 - `/timeout member minutes reason?`
 - `/clear amount`
 - `/setup` opens a dropdown embed for the Welcome-, Log- and Moderationskanal and the Moderator-, Supervisor- and Admin-Rolle.
+
+Messages in channels whose name starts with `ticket` receive an automatic response (with a 30-second cooldown per channel). Staff can send `!stop` in that ticket to disable the automatic response for that channel.
 
 When someone says `Can I speak with Mariah`, the bot replies that Mariah is unavailable and offers help here.

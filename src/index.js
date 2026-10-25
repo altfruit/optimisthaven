@@ -22,6 +22,7 @@ const requiredEnvironment = ['DISCORD_TOKEN', 'CLIENT_ID', 'GUILD_ID'];
 const missingEnvironment = requiredEnvironment.filter((name) => !process.env[name]);
 const configDirectory = path.join(__dirname, '..', 'data');
 const configPath = path.join(configDirectory, 'guild-config.json');
+const ticketResponseCooldowns = new Map();
 
 if (missingEnvironment.length > 0) {
   throw new Error(`Missing environment variables: ${missingEnvironment.join(', ')}`);
@@ -46,6 +47,24 @@ function hasStaffAccess(interaction) {
   const guildConfig = getGuildConfig(interaction.guildId);
   return interaction.memberPermissions.has(PermissionFlagsBits.Administrator)
     || (guildConfig.adminRoleId && interaction.member.roles.cache.has(guildConfig.adminRoleId));
+}
+
+function hasStaffMessageAccess(message) {
+  if (!message.member) return false;
+  const guildConfig = getGuildConfig(message.guild.id);
+  const staffRoleIds = [
+    guildConfig.moderatorRoleId,
+    guildConfig.supervisorRoleId,
+    guildConfig.adminRoleId,
+  ].filter(Boolean);
+
+  return message.member.permissions.has(PermissionFlagsBits.Administrator)
+    || message.member.permissions.has(PermissionFlagsBits.ManageMessages)
+    || staffRoleIds.some((roleId) => message.member.roles.cache.has(roleId));
+}
+
+function isTicketChannel(message) {
+  return message.guild && message.channel.name.toLowerCase().startsWith('ticket');
 }
 
 function setupEmbed(guildId) {
@@ -183,6 +202,35 @@ client.on('messageCreate', async (message) => {
   if (message.content.trim().toLowerCase() === 'can i speak with mariah') {
     await message.reply('Mariah is not available right now, but I can help you here.');
   }
+
+  if (!isTicketChannel(message)) return;
+
+  const config = loadGuildConfig();
+  const guildConfig = config[message.guild.id] || {};
+  const stoppedTicketChannels = guildConfig.stoppedTicketChannels || [];
+
+  if (message.content.trim().toLowerCase() === '!stop') {
+    if (!hasStaffMessageAccess(message)) {
+      await message.reply('Nur Staff kann die automatische Ticketantwort deaktivieren.');
+      return;
+    }
+
+    if (!stoppedTicketChannels.includes(message.channel.id)) {
+      guildConfig.stoppedTicketChannels = [...stoppedTicketChannels, message.channel.id];
+      config[message.guild.id] = guildConfig;
+      saveGuildConfig(config);
+    }
+    await message.reply('Automatische Ticketantwort ist für diesen Kanal deaktiviert.');
+    return;
+  }
+
+  if (stoppedTicketChannels.includes(message.channel.id)) return;
+
+  const lastResponseAt = ticketResponseCooldowns.get(message.channel.id) || 0;
+  if (Date.now() - lastResponseAt < 30_000) return;
+
+  ticketResponseCooldowns.set(message.channel.id, Date.now());
+  await message.reply('Danke für deine Nachricht. Ein Staff-Mitglied kümmert sich so bald wie möglich um dein Ticket.');
 });
 
 client.on('interactionCreate', async (interaction) => {
