@@ -21,6 +21,17 @@ npm start
 
 The repository includes `render.yaml` for a Render background worker. Create a new Blueprint on Render, select this repository, and enter `DISCORD_TOKEN`, `CLIENT_ID`, and `GUILD_ID` when prompted. Render background workers use the Starter plan.
 
+## FadeHost
+
+The repository also includes a `Dockerfile` for FadeHost or any Docker-compatible hosting panel:
+
+1. Create a Node.js/Docker server on FadeHost and connect the GitHub repository, or upload the project files.
+2. Use the repository `Dockerfile` as the startup configuration. If FadeHost asks for a command instead, use `npm ci --omit=dev && npm start`.
+3. Add these environment variables in the FadeHost panel: `DISCORD_TOKEN`, `CLIENT_ID`, and `GUILD_ID`.
+4. Enable automatic deploys or restart-on-failure in FadeHost.
+5. Deploy or restart the server and check the console for `is online.`.
+
+Do not upload `.env` or paste the Discord token into GitHub. The bot must be kept running as a worker process; it does not need an HTTP port.
 ## Commands
 
 - `/kick member reason?`

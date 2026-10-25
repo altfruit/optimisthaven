@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+.env
+data/guild-config.json
+.git
+.gitignore
+README.md
